@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+</head>
+
+<body>
+    <form onsubmit="saveToLocalStorage(event)">
+        <label>Name</label>
+        <input id="username" type="text" name="username" required />
+        <label>EmailId</label>
+        <input id="email" type="email" name="emailId" required />
+        <label>Phone Number</label>
+        <input id="phonenumber" type="tel" name="phonenumber" required />
+        <button>Submit</button>
+    </form>
+    <ul id="listOfUsers"></ul>
+
+</body>
+
+</html>
+<!-- code download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script>
+    function saveToLocalStorage(event) {
+        event.preventDefault();
+        const name = event.target.username.value;
+        const email = event.target.emailId.value;
+        const phonenumber = event.target.phonenumber.value;
+        const obj = {
+            name, email, phonenumber
+        }
+        axios.post("https://crudcrud.com/api/10fd7732bea346ee8790dd292a21af69/apnaData", obj)
+            .then((response) => {
+                // console.log(response)
+                console.log(".then post wala");
+                // console.log(response.data) //yaha se aap name email sb access kr sakte ho 
+                
+            })
+            .catch((error) => {
+                document.body.innerHTML +=  "<h4>Something went wrong</h4>"
+                console.log(error)
+            })
+
+    }
+    // when the screen used to load: we have to read from crud crud- get request,
+
+    window.addEventListener("DOMContentLoaded",()=>{
+        axios.get('https://crudcrud.com/api/10fd7732bea346ee8790dd292a21af69/apnaData')
+        .then((response)=>{
+            // console.log(response)
+            for(var i=0;i<response.data.length;i++){
+                showUserOnScreen(response.data[i]);             
+                console.log("response data[i]",response.data[i]);
+            }
+        })
+        .catch((error)=>console.log(error))
+    })
+
+
+    function showUserOnScreen(obj) {
+
+        /*
+        is object k paas kuch chije honge jaise ki 
+        _id:'',
+        name:'',
+        email:'',
+        phoneNum:'';        
+        */
+
+        // console.log(obj._id);
+        const parentElem = document.getElementById('listOfUsers');
+        const childElem = document.createElement('li');
+        childElem.innerText = obj.name + ' - ' + obj.email + ' - ' + obj.phonenumber;
+
+        // const delBtn = document.createElement('btn');
+        const delBtn = document.createElement('input');
+        delBtn.type = 'button';
+        delBtn.value = 'Delete'
+
+        delBtn.onclick = () => {
+            // localStorage.removeItem(obj.email)
+            parentElem.removeChild(childElem)
+            
+            console.log("Deleting this id",obj._id);
+            axios.delete(`https://crudcrud.com/api/10fd7732bea346ee8790dd292a21af69/apnaData/${obj._id}`).then((res)=>{
+                console.log(res);
+            }).catch((error)=>{
+                console.log(error);
+            })
+        }
+
+        const editBtn = document.createElement('input');
+        editBtn.type = 'button'
+        editBtn.value = 'Edit'
+        editBtn.onclick = () => {
+            
+            parentElem.removeChild(childElem);
+            document.getElementById('usernameInputTag').value = obj.name;
+            document.getElementById('emailInputTag').value = obj.email;
+            document.getElementById('phoneNumberInputTag').value = obj.phonenumber;
+        }
+
+        childElem.appendChild(delBtn);
+        childElem.appendChild(editBtn);
+        parentElem.appendChild(childElem);
+    }
+</script>
+
+<!-- why do we even want domcontentloaded: because once u refresh the page (when the screen is loaded when the ul element is shown on the screen u want to read from the local storage and attach everything which was there), basically domcontent loaded means this content is loaded , pehle html load ho jae means jo tune ul element daala hai listofusers wala pehle wo run ho jae fir script ko runkrna. when the ul is loaded than u'll read the data from api and store it inside html, usse pehle nai krna hai , once dom is loaded than load this -->
+
+<!-- 
+Delete User:
+-> i have to get the right id
+-> do a network call with this id via axios (Delete request)
+-> once delete request is successfull delete user from the screen
+ -->
