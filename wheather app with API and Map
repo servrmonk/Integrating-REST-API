@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google map</title>
+    <style>
+        /* inline style */
+        .mapouter {
+            position: relative;
+            text-align: right;
+            height: 500px;
+            width: 600px;
+        }
+    </style>
+    <style>
+        .gmap_canvas {
+            overflow: hidden;
+            background: none !important;
+            height: 500px;
+            width: 600px;
+        }
+    </style>
+</head>
+
+<body onload="getLocation()">
+    <!-- https://embedgooglemap.net/ go to the link search for the city copy html code copy it here  and paste it  -->
+    <input type="text" name="" id="query" placeholder="CITY NAME"/>
+    <button onclick="getData()">Search</button>
+    <div id="container"></div>
+    <div class="mapouter">
+        <div class="gmap_canvas">
+            <iframe
+                width="600"
+                height="500"
+                id="gmap_canvas"
+                frameborder="0"
+                scrolling="no"
+                marginheight="0"
+                marginwidth="0"
+            ></iframe>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+// https://api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key} , put ur city name and api key and remove curly braces
+
+// https://api.openweathermap.org/data/2.5/weather?q=patna&appid=4bf678de6fb499747dd83e4baa10dbbf
+
+function getData() {
+    let city = document.getElementById("query").value;
+    // how can  i make url dynamic : using template literals
+    let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=4bf678de6fb499747dd83e4baa10dbbf`;
+    fetch(url).then(function (res) {
+        // console.log(res); readable stream me hoga so use res.json();
+        // let data = res.json();
+        return res.json();
+        // console.log(data); promise hai nai print hoga u have to handle using then
+    })
+        .then(function (res) {
+            console.log(res);
+            // console.log(res.name);
+            // console.log(res.main.temp);
+            // let div =document.createElement('div')
+            // div.innerHTML =  `<h4>City ${res.name}, Temperature: ${res.main.temp} ` kelvin scale
+            // document.body.append(div);
+            append(res);
+        }).catch(function (err) {
+            console.log(err);
+        })
+}
+// src="https://maps.google.com/maps?q=pune&t=&z=13&ie=UTF8&iwloc=&output=embed"
+
+function append(data) {
+    let url = `https://maps.google.com/maps?q=${data.name}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+    let container = document.getElementById('container');
+
+    container.innerHTML = null;//history deleted
+    let h2 = document.createElement('h2');
+    h2.innerText = data.name
+
+    let tem = document.createElement('p');
+    tem.innerText = `Temp: ${data.main.temp}`
+
+    let min_tem = document.createElement('p');
+    min_tem.innerText = `Min Temp: ${data.main.temp_min}`
+
+    let max_tem = document.createElement('p');
+    max_tem.innerText = `Max Temp: ${data.main.temp_max}`
+
+    container.append(h2, tem, min_tem, max_tem);
+
+    let iframe = document.getElementById('gmap_canvas');
+    iframe.src = url; //i am searching the src of the iframe to this custom url
+
+    //how to get the current location : geolocation
+    // https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition
+
+}
+
+// https://embedgooglemap.net/
+
+/*
+original link
+ <div class="mapouter"><div class="gmap_canvas"><iframe width="799" height="500" id="gmap_canvas" src="https://maps.google.com/maps?q=pune&t=&z=9&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe><a href="https://embedgooglemap.net/124/"></a><br><style>.mapouter{position:relative;text-align:right;height:500px;width:799px;}</style><a href="https://www.embedgooglemap.net"></a><style>.gmap_canvas {overflow:hidden;background:none!important;height:500px;width:799px;}</style></div></div>
+ */
+
+
+function getLocation() {
+    navigator.geolocation.getCurrentPosition(success); //simplebs last line copy kr k paste kr do https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition , success is the parameter or a callback function , fir copy paste kr lo us website se last me hai 
+    // only success parameter lo
+    function success(pos) {
+        const crd = pos.coords;
+
+        console.log("Your current position is:");
+        console.log(`Latitude : ${crd.latitude}`);
+        console.log(`Longitude: ${crd.longitude}`);
+        console.log(`More or less ${crd.accuracy} meters.`);
+        getWeatherOnLocation(crd.latitude,crd.longitude)
+    }
+}
+getLocation();
+//  let url = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}`  //latitude and longitude link check on https://openweathermap.org/current
+
+// onload() //onloading something : onloadin something i want to call something , whenever page load, whenever my app will load my function should work , app loading means my body will load. , i want to call these get location function whenevermy page load
+
+function getWeatherOnLocation(lat, lon) {
+    let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=4bf678de6fb499747dd83e4baa10dbbf`
+
+    fetch(url).then(function (res) {
+        return res.json();
+    })
+        .then(function (res) {
+            console.log(res);
+            append(res);
+        }).catch(function (err) {
+            console.log(err);
+        })
+}
+</script>
