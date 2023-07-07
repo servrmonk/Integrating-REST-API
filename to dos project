@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #form {
+        height: auto;
+        width: 30%;
+        border: 1px solid black;
+        margin: auto;
+        padding: 10px;
+    }
+
+    .itnm {
+        margin: auto;
+        padding: 10px;
+        font-size: 40px;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+
+    }
+
+    #itemName,
+    #desc {
+
+        padding: 10px;
+        width: 60%;
+        font-size: 35px;
+    }
+
+    #submit {
+        padding: 7px;
+        margin-left: 150px;
+        margin-top: 20px;
+        background-color: rgb(40, 40, 131);
+        font-size: 30px;
+        color: white;
+    }
+</style>
+
+<body>
+    <form action="submit" id="form">
+        <span class="itnm">TodoName:</span>
+        <input type="text" name="text" id="itemName">
+        <br>
+        <span class="itnm">Description:</span>
+        <input type="text" name="descriptioin" id="desc">
+        <br>
+        <input type="submit" name="" id="submit" value="Add Item">
+    </form>
+    <div></div>
+    <div id="updatedData"></div>
+</body>
+
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script>
+
+    let form = document.addEventListener('submit', todofun);
+    function todofun(e) {
+        e.preventDefault();
+        console.log(1);
+        let name = document.querySelector('#itemName').value;
+        let desc = document.querySelector('#desc').value;
+
+        let obj = {
+            name, desc
+        }
+        display(obj);
+
+    }
+    //sent to api then fetch 
+
+
+    function display(e) {
+        console.log(e.name);
+        console.log(e.desc);
+        console.log(typeof e);
+        // todos remaining ,todos done 
+
+        let tr = document.createElement('tr');
+        let h2 = document.createElement('h2');
+        h2.innerText = "Todos Remaining";
+
+
+        let td1 = document.createElement('td');
+        td1.innerText = e.name;
+        let td2 = document.createElement('td')
+        td2.innerText = e.desc;
+
+        // let obj = {
+        //     name:e.name,
+        //     desc:e.desc
+        // }
+
+        let tick = document.createElement('button');
+        tick.innerText = "✔";
+        tick.addEventListener('click', () => {
+            axios.post("https://crudcrud.com/api/7046542006a04c7a99f80b9c9152e6e8/users", e)
+                .then((res) => {
+                    console.log(res.data);
+                })
+                .catch((err) => {
+                    console.log("Error ho gya bhai", err);
+                })
+        });
+
+        let del = document.createElement('button');
+        del.innerText = "❌";
+        del.addEventListener('click', (e) => {
+            e.target.parentNode.remove()
+        })
+        tr.append(h2, td1, td2, tick, del);
+        document.querySelector('div').append(tr);
+
+        console.log('display function called sucessfully');
+
+
+
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        axios.get('https://crudcrud.com/api/7046542006a04c7a99f80b9c9152e6e8/users')
+            .then((res) => {
+                console.log(res.data)
+                updatedDataDisplay(res.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+        console.log("domcontent loaded activated");
+    })
+
+
+
+    function updatedDataDisplay(e) {
+
+
+
+        console.log("we are inside updateddatadisplay function");
+
+
+
+        let tr = document.createElement('tr');
+        e.forEach(element => {
+            let h2 = document.createElement('h2');
+            let td2 = document.createElement('td')
+            h2.innerText = "Todos Done";
+            let td1 = document.createElement('td');
+            td1.innerText = element.name;
+            td2.innerText = element.desc;
+            tr.append(h2, td1, td2);
+
+        });
+
+        document.querySelector('#updatedData').append(tr);
+
+    }
+
+</script>
+
+<!-- 
+deletebtn.addEventListener('click', function delFun(e) {
+    console.log("Delete Function Called");
+    e.target.parentNode.remove()
+    axios.delete(`https://crudcrud.com/api/c4924a14835745c8b057e5a0dba37496/Users/${obj._id}`)
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  })
+
+  var editBtn = document.createElement('button');
+  editBtn.innerText = "Edit"
+
+  editBtn.addEventListener('click', (e) => {
+    console.log("Edit Function Called");
+    document.querySelector('#name').value = obj.name;
+    document.querySelector('#number').value = obj.number;
+    e.target.parentNode.remove()
+    axios.delete(`https://crudcrud.com/api/c4924a14835745c8b057e5a0dba37496/Users/${obj._id}`)
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  })
+ -->
